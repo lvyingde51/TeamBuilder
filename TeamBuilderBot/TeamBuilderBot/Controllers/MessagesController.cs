@@ -12,6 +12,7 @@ using Microsoft.Bot.Builder.Dialogs;
 namespace TeamBuilderBot {
      [BotAuthentication]
      public class MessagesController : ApiController {
+
           /// <summary>
           /// POST: api/Messages
           /// Receive a message from a user and reply to it
@@ -19,6 +20,12 @@ namespace TeamBuilderBot {
           public async Task<HttpResponseMessage> Post([FromBody]Activity activity) {
                if (activity.Type == ActivityTypes.Message) {
                     await Conversation.SendAsync(activity, () => new SimpleLUISDialog());
+
+                    StateClient stateClient = activity.GetStateClient();
+                    BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);
+                    userData.SetProperty<string>("name", activity.From.Name);
+                    await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
+                    
                }
                else {
                     HandleSystemMessage(activity);
