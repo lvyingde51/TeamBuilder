@@ -21,16 +21,17 @@ namespace TeamBuilderBot {
           public async Task<HttpResponseMessage> Post([FromBody]Activity activity) {
                if (activity.Type == ActivityTypes.Message) {
                     StateClient stateClient = activity.GetStateClient();
+
+                    // Get User ID
+                    BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);
+                    userData.SetProperty<string>("userID", activity.From.Id);
+                    await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
+
+                    // Reset Dictionaries FIXME
                     BotData conversationData = await stateClient.BotState.GetConversationDataAsync(activity.ChannelId, activity.Conversation.Id);
                     conversationData.SetProperty<Dictionary<string, string>>("LFMdictionary", new Dictionary<string, string>());
                     conversationData.SetProperty<Dictionary<string, string>>("LFGdictionary", new Dictionary<string, string>());
-                    
                     await stateClient.BotState.SetConversationDataAsync(activity.ChannelId, activity.Conversation.Id, conversationData);
-
-                    BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);
-                    userData.SetProperty<string>("userID", activity.From.Id);
-
-                    await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
 
                     await Conversation.SendAsync(activity, () => new SimpleLUISDialog());
                }
