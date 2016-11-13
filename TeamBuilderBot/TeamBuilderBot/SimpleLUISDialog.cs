@@ -21,9 +21,7 @@ namespace TeamBuilderBot {
 
                     await context.PostAsync($"Given language: {language}");
                     context.Wait(MessageReceived);
-
-                    //string userID = context.UserData.Get<string>("userID");
-
+                    
                     string userID;
                     if(context.UserData.TryGetValue<string>("userID", out userID)) {
 
