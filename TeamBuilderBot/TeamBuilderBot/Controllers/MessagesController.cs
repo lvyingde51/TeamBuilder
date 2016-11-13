@@ -8,6 +8,7 @@ using System.Web.Http.Description;
 using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
 using Microsoft.Bot.Builder.Dialogs;
+using System.Collections.Generic;
 
 namespace TeamBuilderBot {
      [BotAuthentication]
@@ -22,10 +23,15 @@ namespace TeamBuilderBot {
                     await Conversation.SendAsync(activity, () => new SimpleLUISDialog());
 
                     StateClient stateClient = activity.GetStateClient();
-                    BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);
-                    userData.SetProperty<string>("name", activity.From.Name);
-                    await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
+                    BotData conversationData = await stateClient.BotState.GetConversationDataAsync(activity.ChannelId, activity.Conversation.Id);
+                    conversationData.SetProperty<Dictionary<string, string>>("LFMdictionary", new Dictionary<string, string>());
+                    conversationData.SetProperty<Dictionary<string, string>>("LFGdictionary", new Dictionary<string, string>());
                     
+                    BotData userData = await stateClient.BotState.GetConversationDataAsync(activity.ChannelId, activity.From.Id);
+                    userData.SetProperty<string>("userID", activity.From.Id);
+
+                    await stateClient.BotState.SetConversationDataAsync(activity.ChannelId, activity.Conversation.Id, conversationData);
+
                }
                else {
                     HandleSystemMessage(activity);
