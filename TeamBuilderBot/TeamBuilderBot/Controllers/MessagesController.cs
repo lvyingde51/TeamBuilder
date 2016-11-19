@@ -29,7 +29,7 @@ namespace TeamBuilderBot {
 
                     // Reset Dictionaries FIXME - Test
                     BotData conversationData = await stateClient.BotState.GetConversationDataAsync(activity.ChannelId, activity.Conversation.Id);
-                    if(conversationData.GetProperty<Dictionary<string, string>>("LFMdictionary") == null) {
+                    if (conversationData.GetProperty<Dictionary<string, string>>("LFMdictionary") == null) {
                          conversationData.SetProperty<Dictionary<string, string>>("LFMdictionary", new Dictionary<string, string>());
                     }
                     if (conversationData.GetProperty<Dictionary<string, string>>("LFGdictionary") == null) {
