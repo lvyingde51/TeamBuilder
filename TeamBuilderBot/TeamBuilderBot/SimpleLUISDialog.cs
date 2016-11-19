@@ -17,16 +17,19 @@ namespace TeamBuilderBot {
                
                Dictionary<string, string> LFMdictionary = context.ConversationData.Get<Dictionary<string, string>>("LFMdictionary");
                EntityRecommendation rec;
-               string language = "";
                string userID = context.UserData.Get<string>("userID");
-
+               
                // If Language is specified, update Language
+               string language = "";
                if (result.TryFindEntity("Language", out rec)) {
                     language = rec.Entity;
                }
 
+               await context.PostAsync($"{userID}, {language}");
+
                // Add or Edit request
                if (LFMdictionary.ContainsKey(userID)) {
+<<<<<<< HEAD
                     LFMdictionary[userID] = language;
                     await context.PostAsync($"LFM Request edited. (Language: {language})");
                     context.Wait(MessageReceived);
@@ -35,16 +38,28 @@ namespace TeamBuilderBot {
                     LFMdictionary.Add(userID, language);
                     await context.PostAsync($"LFM Request added. (Language: {language})");
                     context.Wait(MessageReceived);
+=======
+                    await context.PostAsync($"Request edited. (Language: {language})");
                }
+               else {
+                    await context.PostAsync($"Request added. (Language: {language})");
+>>>>>>> origin/master
+               }
+               LFMdictionary[userID] = language;
+               await context.PostAsync($"Should be 1: {LFMdictionary.Count}");
+
 
                // List all Teams satisfying the condition
                Dictionary<string, string> LFGdictionary = context.ConversationData.Get<Dictionary<string, string>>("LFGdictionary");
+               
                foreach (KeyValuePair<string, string> pair in LFGdictionary) {
                     if (pair.Value == language) {
                          await context.PostAsync($"{pair.Key}");
-                         context.Wait(MessageReceived);
                     }
                }
+
+               await context.PostAsync($"{LFGdictionary.Count}");
+               context.Wait(MessageReceived);
           }
 
           [LuisIntent("LFG")]
@@ -53,12 +68,17 @@ namespace TeamBuilderBot {
                EntityRecommendation rec;
                string language = "";
                string userID = context.UserData.Get<string>("userID");
+<<<<<<< HEAD
 
+=======
+               
+>>>>>>> origin/master
                // If Language is specified, update Language
                if (result.TryFindEntity("Language", out rec)) {
                     language = rec.Entity;
                }
 
+<<<<<<< HEAD
                // Add or Edit request
                if (LFGdictionary.ContainsKey(userID)) {
                     LFGdictionary[userID] = language;
@@ -69,8 +89,23 @@ namespace TeamBuilderBot {
                     LFGdictionary.Add(userID, language);
                     await context.PostAsync($"LFG Request added. (Language: {language})");
                     context.Wait(MessageReceived);
-               }
+=======
+               await context.PostAsync($"{userID}, {language}");
 
+               // Add or Edit request
+               if (LFGdictionary.ContainsKey(userID)) {
+                    await context.PostAsync($"Request edited. (Language: {language})");
+               }
+               else {
+                    await context.PostAsync($"Request added. (Language: {language})");
+>>>>>>> origin/master
+               }
+               LFGdictionary[userID] = language;
+                              
+               // List all Members satisfying the condition
+               Dictionary<string, string> LFMdictionary = context.ConversationData.Get<Dictionary<string, string>>("LFMdictionary");
+
+<<<<<<< HEAD
                // List all Teams satisfying the condition
                Dictionary<string, string> LFMdictionary = context.ConversationData.Get<Dictionary<string, string>>("LFMdictionary");
                foreach (KeyValuePair<string, string> pair in LFMdictionary) {
@@ -79,6 +114,17 @@ namespace TeamBuilderBot {
                          context.Wait(MessageReceived);
                     }
                }
+=======
+               foreach (KeyValuePair<string, string> pair in LFMdictionary) {
+                    if (pair.Value == language) {
+                         await context.PostAsync($"{pair.Key}");
+                    }
+               }
+               
+               await context.PostAsync($"Count: {LFMdictionary.Count}");
+               context.Wait(MessageReceived);
+               
+>>>>>>> origin/master
           }
 
           [LuisIntent("")]
