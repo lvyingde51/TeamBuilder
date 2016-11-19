@@ -27,12 +27,15 @@ namespace TeamBuilderBot {
                     userData.SetProperty<string>("userID", activity.From.Id);
                     await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
 
-                    // Reset Dictionaries FIXME
+                    // Reset Dictionaries FIXME - Test
                     BotData conversationData = await stateClient.BotState.GetConversationDataAsync(activity.ChannelId, activity.Conversation.Id);
-                    conversationData.SetProperty<Dictionary<string, string>>("LFMdictionary", new Dictionary<string, string>());
-                    conversationData.SetProperty<Dictionary<string, string>>("LFGdictionary", new Dictionary<string, string>());
+                    if(conversationData.GetProperty<Dictionary<string, string>>("LFMdictionary") == null) {
+                         conversationData.SetProperty<Dictionary<string, string>>("LFMdictionary", new Dictionary<string, string>());
+                    }
+                    if (conversationData.GetProperty<Dictionary<string, string>>("LFGdictionary") == null) {
+                         conversationData.SetProperty<Dictionary<string, string>>("LFGdictionary", new Dictionary<string, string>());
+                    }
                     await stateClient.BotState.SetConversationDataAsync(activity.ChannelId, activity.Conversation.Id, conversationData);
-
                     await Conversation.SendAsync(activity, () => new SimpleLUISDialog());
                }
                else {

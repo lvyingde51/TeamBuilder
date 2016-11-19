@@ -39,7 +39,10 @@ namespace TeamBuilderBot {
 
                // List all Teams satisfying the condition
                Dictionary<string, string> LFGdictionary = context.ConversationData.Get<Dictionary<string, string>>("LFGdictionary");
+
                foreach (KeyValuePair<string, string> pair in LFGdictionary) {
+                    await context.PostAsync($"{LFGdictionary.Count}");
+                    context.Wait(MessageReceived);
                     if (pair.Value == language) {
                          await context.PostAsync($"{pair.Key}");
                          context.Wait(MessageReceived);
