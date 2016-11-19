@@ -5,12 +5,46 @@ var connector = new builder.ConsoleConnector().listen();
 var bot = new builder.UniversalBot(connector);
 
 // Create LUIS recognizer that points at our model and add it as the root '/' dialog for our Cortana Bot.
-var model = 'https://api.projectoxford.ai/luis/v2.0/apps/c413b2ef-382c-45bd-8ff0-f76d60e2a821?subscription-key=6d0966209c6e4f6b835ce34492f3e6d9';
+var model = 'https://api.projectoxford.ai/luis/v2.0/apps/1c43280a-d40a-4538-a333-663bb7aafc66?subscription-key=6a8e724ea06b480a9f66298043bca30c&verbose=true';
 var recognizer = new builder.LuisRecognizer(model);
 var dialog = new builder.IntentDialog({ recognizers: [recognizer] });
 bot.dialog('/', dialog);
 
 // Add intent handlers
+dialog.matches('LFM', [
+    function(session, args, next) {
+        var match;
+        var language = builder.EntityRecognizer.findEntity(args.entities, 'Language');
+        next({ response: language });
+    },
+    function(session, results) {
+        session.send("LFM request detected");
+        if(results.response) {
+            session.send("Selected Language: " + results.response.entity);
+        }
+        else {
+            session.send("No language selected");
+        }
+    }
+]);
+
+dialog.matches('LFG', [
+    function(session, args, next) {
+        var match;
+        var language = builder.EntityRecognizer.findEntity(args.entities, 'Language');
+        next({ response: language });
+    },
+    function(session, results) {
+        session.send("LFG request detected");
+        if(results.response) {
+            session.send("Selected Language: " + results.response.entity);
+        }
+        else {
+            session.send("No language selected");
+        }
+    }
+]);
+
 dialog.matches('builtin.intent.alarm.set_alarm', [
     function (session, args, next) {
         // Resolve and store any entities passed from LUIS.
@@ -95,7 +129,7 @@ dialog.matches('builtin.intent.alarm.delete_alarm', [
     }
 ]);
 
-dialog.onDefault(builder.DialogAction.send("I'm sorry I didn't understand. I can only create & delete alarms."));
+dialog.onDefault(builder.DialogAction.send("I'm sorry I didn't understand."));
 
 // Very simple alarm scheduler
 var alarms = {};
