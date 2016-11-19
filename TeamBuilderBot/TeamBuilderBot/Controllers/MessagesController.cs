@@ -27,7 +27,7 @@ namespace TeamBuilderBot {
                     userData.SetProperty<string>("userID", activity.From.Id);
                     await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
 
-                    // Reset Dictionaries FIXME - Test
+                    // Reset Dictionaries FIXME
                     BotData conversationData = await stateClient.BotState.GetConversationDataAsync(activity.ChannelId, activity.Conversation.Id);
                     if (conversationData.GetProperty<Dictionary<string, string>>("LFMdictionary") == null) {
                          conversationData.SetProperty<Dictionary<string, string>>("LFMdictionary", new Dictionary<string, string>());
