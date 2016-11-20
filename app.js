@@ -45,10 +45,16 @@ dialog.matches('LFM', [
             session.send("This name already exists.");
         }
 
+        // FIXME: never null after called without entity once
         if(results.response != null) {
             LFMdictionary[session.message.address.user.name] = results.response.entity;
         }
         LFMdictionary[session.message.address.user.name] = "";
+
+        var reply = new builder.Message()
+                    .address(session.message.address)
+                    .text("Hi");
+                bot.send(reply);
 
         for (var key in LFGdictionary) {
             if(LFGdictionary[key] == results.response.entity) {
@@ -79,9 +85,9 @@ dialog.matches('LFG', [
         }
         
         if(results.response != null) {
-            LFMdictionary[session.message.address.user.name] = results.response.entity;
+            LFGdictionary[session.message.address.user.name] = results.response.entity;
         }
-        LFMdictionary[session.message.address.user.name] = "";
+        LFGdictionary[session.message.address.user.name] = "";
 
         for (var key in LFMdictionary) {
             if(LFMdictionary[key] == results.response.entity) {
