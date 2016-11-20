@@ -42,6 +42,15 @@ dialog.matches('LFM', [
         
         session.send("This is " + session.message.address.user.id);
         LFMdictionary[session.message.address.user.id] = results.response.entity;
+        if(session.message.address.user.id != undefined) {
+            session.send("This userID already exists.");
+        }
+
+        for (var key in LFGdictionary) {
+            if(LFGdictionary[key] == results.response.entity) {
+                session.send("Match found: " + key);
+            }
+        }
     }
 ]);
 
@@ -58,6 +67,18 @@ dialog.matches('LFG', [
         }
         else {
             session.send("No language selected");
+        }
+
+        session.send("This is " + session.message.address.user.id);
+        LFGdictionary[session.message.address.user.id] = results.response.entity;
+        if(session.message.address.user.id != undefined) {
+            session.send("This userID already exists.");
+        }
+
+        for (var key in LFMdictionary) {
+            if(LFMdictionary[key] == results.response.entity) {
+                session.send("Match found: " + key);
+            }
         }
     }
 ]);
