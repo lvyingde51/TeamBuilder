@@ -1,11 +1,16 @@
 var builder = require('botbuilder');
 var restify = require('restify');
 
+// Dictionaries
+var LFMdictionary = {};
+var LFGdictionary = {};
+
 // Setup Restify Server
 var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
     console.log("%s listening to %s", server.name, server.url);
 });
+
 // Create Chat Bot
 var connector = new builder.ChatConnector({
     appId: process.env.MICROSOFT_APP_ID,
@@ -23,7 +28,6 @@ bot.dialog('/', dialog);
 // Add intent handlers
 dialog.matches('LFM', [
     function(session, args, next) {
-        var match;
         var language = builder.EntityRecognizer.findEntity(args.entities, 'Language');
         next({ response: language });
     },
@@ -35,6 +39,9 @@ dialog.matches('LFM', [
         else {
             session.send("No language selected");
         }
+        
+        session.send("This is " + session.message.address.user.id);
+        LFMdictionary[session.message.address.user.id] = results.response.entity;
     }
 ]);
 
