@@ -44,7 +44,11 @@ dialog.matches('LFM', [
         if(LFMdictionary[session.message.address.user.name] != undefined) {
             session.send("This name already exists.");
         }
-        LFMdictionary[session.message.address.user.name] = results.response.entity;       
+
+        if(results.response != null) {
+            LFMdictionary[session.message.address.user.name] = results.response.entity;
+        }
+        LFMdictionary[session.message.address.user.name] = "";
 
         for (var key in LFGdictionary) {
             if(LFGdictionary[key] == results.response.entity) {
@@ -73,7 +77,11 @@ dialog.matches('LFG', [
         if(LFGdictionary[session.message.address.user.name] != undefined) {
             session.send("This name already exists.");
         }
-        LFGdictionary[session.message.address.user.name] = results.response.entity;
+        
+        if(results.response != null) {
+            LFMdictionary[session.message.address.user.name] = results.response.entity;
+        }
+        LFMdictionary[session.message.address.user.name] = "";
 
         for (var key in LFMdictionary) {
             if(LFMdictionary[key] == results.response.entity) {
