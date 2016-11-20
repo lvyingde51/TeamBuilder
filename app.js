@@ -41,10 +41,10 @@ dialog.matches('LFM', [
         }
         
         session.send("This is " + session.message.address.user.id);
-        LFMdictionary[session.message.address.user.id] = results.response.entity;
-        if(session.message.address.user.id != undefined) {
+        if(LFMdictionary[session.message.address.user.id] != undefined) {
             session.send("This userID already exists.");
         }
+        LFMdictionary[session.message.address.user.id] = results.response.entity;       
 
         for (var key in LFGdictionary) {
             if(LFGdictionary[key] == results.response.entity) {
@@ -70,10 +70,10 @@ dialog.matches('LFG', [
         }
 
         session.send("This is " + session.message.address.user.id);
-        LFGdictionary[session.message.address.user.id] = results.response.entity;
-        if(session.message.address.user.id != undefined) {
+        if(LFGdictionary[session.message.address.user.id] != undefined) {
             session.send("This userID already exists.");
         }
+        LFGdictionary[session.message.address.user.id] = results.response.entity;
 
         for (var key in LFMdictionary) {
             if(LFMdictionary[key] == results.response.entity) {
