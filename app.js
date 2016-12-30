@@ -36,36 +36,58 @@ dialog.matches('LFM', [
         next({ response: language });
     },
     function(session, results) {
-        session.send("LFM request detected");
-        if(results.response) {
-            session.send("Selected Language: " + results.response.entity);
+        // var reply = new builder.Message()
+        //             .address(session.message.address)
+        //             .text("Hi");
+        //         bot.send(reply);
+
+        var reply = "";
+
+        // Greet the user
+        if(LFMdictionary[session.message.address.user.name] == undefined) {
+            reply += ("Nice to meet you " + session.message.address.user.name + "! ");
         }
         else {
-            session.send("No language selected");
-        }
-        
-        session.send("This is " + session.message.address.user.name);
-        if(LFMdictionary[session.message.address.user.name] != undefined) {
-            session.send("This name already exists.");
+            reply += ("Welcome back " + session.message.address.user.name + "! ");
         }
 
-        // FIXME: never null after called without entity once
-        if(results.response != null) {
+        // Check user's request
+        if(results.response && results.response.entity != "") {
+            reply += ("We will help you find members that know " + results.response.entity + ".");
+        }
+        else {
+            reply += "We will help you find members.";
+        }
+
+        session.send(reply);
+
+        // Save user's request to dictionary
+        if(results.response && results.response.entity != "") {
             LFMdictionary[session.message.address.user.name] = results.response.entity;
         }
-        LFMdictionary[session.message.address.user.name] = "";
+        else {
+            LFMdictionary[session.message.address.user.name] = "";
+        }
 
-        var reply = new builder.Message()
-                    .address(session.message.address)
-                    .text("Hi");
-                bot.send(reply);
-
+        var count = 0;
         for (var key in LFGdictionary) {
-            if(LFGdictionary[key] == results.response.entity) {
-                session.send("Match found: " + key);
+            if(!results.response || results.response.entity == "") {
+                session.send("- " + key);
+                count++;
+            }
+            else if(LFGdictionary[key] == results.response.entity) {
+                session.send("- " + key);
+                count++;
             }
         }
-        session.endDialog("Everything sent (LFM).");
+
+        if (count == 1) {
+            session.endDialog("1 match found.");
+        }
+        else {
+            session.endDialog(count + " matches found.");
+        }
+        
     }
 ]);
 
@@ -76,31 +98,52 @@ dialog.matches('LFG', [
         next({ response: language });
     },
     function(session, results) {
-        session.send("LFG request detected");
-        if(results.response) {
-            session.send("Selected Language: " + results.response.entity);
+        var reply = "";
+
+        // Greet the user
+        if(LFGdictionary[session.message.address.user.name] == undefined) {
+            reply += ("Nice to meet you " + session.message.address.user.name + "! ");
         }
         else {
-            session.send("No language selected");
+            reply += ("Welcome back " + session.message.address.user.name + "! ");
         }
 
-        session.send("This is " + session.message.address.user.name);
-        if(LFGdictionary[session.message.address.user.name] != undefined) {
-            session.send("This name already exists.");
+        // Check user's request
+        if(results.response && results.response.entity != "") {
+            reply += ("We will help you find teams that want members that know " + results.response.entity + ".");
         }
-        
-        if(results.response != null) {
+        else {
+            reply += "We will help you find teams that want more members.";
+        }
+
+        session.send(reply);
+
+        // Save user's request to dictionary
+        if(results.response && results.response.entity != "") {
             LFGdictionary[session.message.address.user.name] = results.response.entity;
         }
-        LFGdictionary[session.message.address.user.name] = "";
+        else {
+            LFGdictionary[session.message.address.user.name] = "";
+        }
 
+        var count = 0;
         for (var key in LFMdictionary) {
-            if(LFMdictionary[key] == results.response.entity) {
-                session.send("Match found: " + key);
+            if(!results.response || results.response.entity == "") {
+                session.send("- " + key);
+                count++;
+            }
+            else if(LFMdictionary[key] == results.response.entity) {
+                session.send("- " + key);
+                count++;
             }
         }
 
-        sesson.endDialog("Everything sent (LFG).");
+        if (count == 1) {
+            session.endDialog("1 match found.");
+        }
+        else {
+            session.endDialog(count + " matches found.");
+        }
     }
 ]);
 
