@@ -65,6 +65,7 @@ dialog.matches('LFM', [
                 session.send("Match found: " + key);
             }
         }
+        session.endDialog("Everything sent (LFM).");
     }
 ]);
 
@@ -98,6 +99,8 @@ dialog.matches('LFG', [
                 session.send("Match found: " + key);
             }
         }
+
+        sesson.endDialog("Everything sent (LFG).");
     }
 ]);
 
