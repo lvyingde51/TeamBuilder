@@ -1,11 +1,6 @@
 var builder = require('botbuilder');
 var restify = require('restify');
 
-// Dictionaries
-// FIXME: should be Slack data not server data
-var LFMdictionary = {};
-var LFGdictionary = {};
-
 // Setup Restify Server
 var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
@@ -21,7 +16,9 @@ var connector = new builder.ChatConnector({
     appId: process.env.MICROSOFT_APP_ID,
     appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
-var bot = new builder.UniversalBot(connector);
+var bot = new builder.UniversalBot(connector, {
+    persistConversationData: true // need persistent data for dictionary
+});
 server.post('/api/messages', connector.listen());
 
 // Create LUIS recognizer that points at our model and add it as the root '/' dialog
@@ -42,10 +39,17 @@ dialog.matches('LFM', [
         //             .text("Hi");
         //         bot.send(reply);
 
+        if (!session.conversationData['LFG']) {
+            session.conversationData['LFG'] = {};
+        }
+        if (!session.conversationData['LFM']) {
+            session.conversationData['LFM'] = {};
+        }
+
         var reply = "";
 
         // Greet the user
-        if(LFMdictionary[session.message.address.user.name] == undefined) {
+        if(session.conversationData['LFM'][session.message.address.user.name] == undefined) {
             reply += ("Nice to meet you " + session.message.address.user.name + "! ");
         }
         else {
@@ -64,19 +68,19 @@ dialog.matches('LFM', [
 
         // Save user's request to dictionary
         if(results.response && results.response.entity != "") {
-            LFMdictionary[session.message.address.user.name] = results.response.entity;
+            session.conversationData['LFM'][session.message.address.user.name] = results.response.entity;
         }
         else {
-            LFMdictionary[session.message.address.user.name] = "";
+            session.conversationData['LFM'][session.message.address.user.name] = "";
         }
 
         var count = 0;
-        for (var key in LFGdictionary) {
+        for (var key in session.conversationData['LFG']) {
             if(!results.response || results.response.entity == "") {
                 session.send("- " + key);
                 count++;
             }
-            else if(LFGdictionary[key] == results.response.entity) {
+            else if(session.conversationData['LFG'][key] == results.response.entity) {
                 session.send("- " + key);
                 count++;
             }
@@ -102,7 +106,7 @@ dialog.matches('LFG', [
         var reply = "";
 
         // Greet the user
-        if(LFGdictionary[session.message.address.user.name] == undefined) {
+        if(session.conversationData['LFG'][session.message.address.user.name] == undefined) {
             reply += ("Nice to meet you " + session.message.address.user.name + "! ");
         }
         else {
@@ -121,19 +125,19 @@ dialog.matches('LFG', [
 
         // Save user's request to dictionary
         if(results.response && results.response.entity != "") {
-            LFGdictionary[session.message.address.user.name] = results.response.entity;
+            session.conversationData['LFG'][session.message.address.user.name] = results.response.entity;
         }
         else {
-            LFGdictionary[session.message.address.user.name] = "";
+            session.conversationData['LFG'][session.message.address.user.name] = "";
         }
 
         var count = 0;
-        for (var key in LFMdictionary) {
+        for (var key in session.conversationData['LFM']) {
             if(!results.response || results.response.entity == "") {
                 session.send("- " + key);
                 count++;
             }
-            else if(LFMdictionary[key] == results.response.entity) {
+            else if(session.conversationData['LFM'][key] == results.response.entity) {
                 session.send("- " + key);
                 count++;
             }
