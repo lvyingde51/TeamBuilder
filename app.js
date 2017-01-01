@@ -105,6 +105,14 @@ dialog.matches('LFG', [
     function(session, results) {
         var reply = "";
 
+        if (!session.conversationData['LFG']) {
+            session.conversationData['LFG'] = {};
+        }
+        if (!session.conversationData['LFM']) {
+            session.conversationData['LFM'] = {};
+        }
+
+
         // Greet the user
         if(session.conversationData['LFG'][session.message.address.user.name] == undefined) {
             reply += ("Nice to meet you " + session.message.address.user.name + "! ");
