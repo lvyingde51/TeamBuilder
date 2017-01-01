@@ -2,6 +2,7 @@ var builder = require('botbuilder');
 var restify = require('restify');
 
 // Dictionaries
+// FIXME: should be Slack data not server data
 var LFMdictionary = {};
 var LFGdictionary = {};
 
@@ -17,8 +18,8 @@ server.get(/.*/, restify.serveStatic({
 
 // Create Chat Bot
 var connector = new builder.ChatConnector({
-    appId: 'dbe6cde4-afd9-4e59-9b27-3a5a027b9210',
-    appPassword: 'ADcM3zXnaWemObuvpi7Pmbs'
+    appId: process.env.MICROSOFT_APP_ID,
+    appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
 var bot = new builder.UniversalBot(connector);
 server.post('/api/messages', connector.listen());
