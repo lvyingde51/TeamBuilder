@@ -68,7 +68,9 @@ dialog.matches('LFM', [
 
         // session.send(replyText);
         var replyMessage = session.message.CreateReplyMessage(replyText, "en");
-        replyMessage.ChannelConversationId = "@" + session.message.address.user.name;
+        replyMessage.ConversationId = null;
+        replyMessage.ChannelConversationId = null;
+        // replyMessage.ChannelConversationId = "@" + session.message.address.user.name;
         bot.send(replyMessage);
 
         // Save user's request to dictionary
@@ -104,8 +106,11 @@ dialog.matches('LFM', [
             resultsMessage += (count + " matches found.");
         }
 
+        // session.endDialog(resultsText);
         var resultsMessage = session.message.CreateReplyMessage(resultsText, "en");
-        resultsMessage.ChannelConversationId = "@" + session.message.address.user.name;
+        resultsMessage.ConversationId = null;
+        resultsMessage.ChannelConversationId = null;
+        // resultsMessage.ChannelConversationId = "@" + session.message.address.user.name;
         bot.send(resultsMessage);
         
     }
