@@ -39,6 +39,8 @@ dialog.matches('LFM', [
         //             .text("Hi");
         //         bot.send(reply);
 
+
+
         if (!session.conversationData['LFG']) {
             session.conversationData['LFG'] = {};
         }
@@ -46,25 +48,28 @@ dialog.matches('LFM', [
             session.conversationData['LFM'] = {};
         }
 
-        var reply = "";
+        var replyText = "";
 
         // Greet the user
         if(session.conversationData['LFM'][session.message.address.user.name] == undefined) {
-            reply += ("Nice to meet you " + session.message.address.user.name + "! ");
+            replyText += ("Nice to meet you " + session.message.address.user.name + "! ");
         }
         else {
-            reply += ("Welcome back " + session.message.address.user.name + "! ");
+            replyText += ("Welcome back " + session.message.address.user.name + "! ");
         }
 
         // Check user's request
         if(results.response && results.response.entity != "") {
-            reply += ("We will help you find members that know " + results.response.entity + ".");
+            replyText += ("We will help you find members that know " + results.response.entity + ".");
         }
         else {
-            reply += "We will help you find members.";
+            replyText += "We will help you find members.";
         }
 
-        session.send(reply);
+        // session.send(replyText);
+        var replyMessage = session.message.CreateReplyMessage(replyText, "en");
+        replyMessage.ChannelConversationId = "@" + session.message.address.user.name;
+        bot.send(replyMessage);
 
         // Save user's request to dictionary
         if(results.response && results.response.entity != "") {
@@ -75,23 +80,33 @@ dialog.matches('LFM', [
         }
 
         var count = 0;
+        var resultsText = "";
+
         for (var key in session.conversationData['LFG']) {
             if(!results.response || results.response.entity == "") {
-                session.send("- " + key);
+                // session.send("- " + key);
+                resultsText += "- " + key + "\n";
                 count++;
             }
             else if(session.conversationData['LFG'][key] == results.response.entity) {
-                session.send("- " + key);
+                // session.send("- " + key);
+                resultsText += "- " + key + "\n";
                 count++;
             }
-        }
+        }       
 
         if (count == 1) {
-            session.endDialog("1 match found.");
+            // session.endDialog("1 match found.");
+            resultsMessage += "1 match found.";
         }
         else {
-            session.endDialog(count + " matches found.");
+            // session.endDialog(count + " matches found.");
+            resultsMessage += (count + " matches found.");
         }
+
+        var resultsMessage = session.message.CreateReplyMessage(resultsText, "en");
+        resultsMessage.ChannelConversationId = "@" + session.message.address.user.name;
+        bot.send(resultsMessage);
         
     }
 ]);
