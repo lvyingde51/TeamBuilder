@@ -34,12 +34,10 @@ dialog.matches('LFM', [
         next({ response: language });
     },
     function(session, results) {
-        // var reply = new builder.Message()
-        //             .address(session.message.address)
-        //             .text("Hi");
-        //         bot.send(reply);
-
-
+        var reply = new builder.Message()
+                    .address(session.message.address)
+                    .text("Hi");
+                bot.send(reply);
 
         if (!session.conversationData['LFG']) {
             session.conversationData['LFG'] = {};
@@ -65,13 +63,9 @@ dialog.matches('LFM', [
         else {
             replyText += "We will help you find members.";
         }
+        var address = session.message.address.conversation;
 
-        // session.send(replyText);
-        var replyMessage = session.message.CreateReplyMessage(replyText, "en");
-        replyMessage.ConversationId = null;
-        replyMessage.ChannelConversationId = null;
-        // replyMessage.ChannelConversationId = "@" + session.message.address.user.name;
-        bot.send(replyMessage);
+        session.send(replyText);
 
         // Save user's request to dictionary
         if(results.response && results.response.entity != "") {
@@ -99,20 +93,28 @@ dialog.matches('LFM', [
 
         if (count == 1) {
             // session.endDialog("1 match found.");
-            resultsMessage += "1 match found.";
+            resultsText += "1 match found.";
         }
         else {
             // session.endDialog(count + " matches found.");
-            resultsMessage += (count + " matches found.");
+            resultsText += (count + " matches found.");
         }
 
-        // session.endDialog(resultsText);
-        var resultsMessage = session.message.CreateReplyMessage(resultsText, "en");
-        resultsMessage.ConversationId = null;
-        resultsMessage.ChannelConversationId = null;
+        session.endDialog(resultsText);
+        // var resultsMessage = session.message.CreateReplyMessage(resultsText, "en");
+        // resultsMessage.ConversationId = null;
+        // resultsMessage.ChannelConversationId = null;
         // resultsMessage.ChannelConversationId = "@" + session.message.address.user.name;
-        bot.send(resultsMessage);
+        // bot.send(resultsMessage);
         
+        bot.beginDialog({
+            to: {address:"User1", channelId:"emulator", id:"2c1c7fa3", isBot:false},
+            from: {address:"Bot1", channelId:"emulator", id:"56800324", isBot:true},
+            text: "Something"
+        }, '/');
+
+
+
     }
 ]);
 
