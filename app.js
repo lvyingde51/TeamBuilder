@@ -7,8 +7,8 @@ server.listen(process.env.port || process.env.PORT || 3978, function () {
     console.log("%s listening to %s", server.name, server.url);
 });
 server.get(/.*/, restify.serveStatic({
-	'directory': '.',
-	'default': 'index.html'
+    'directory': '.',
+    'default': 'index.html'
 }));
 
 // Create Chat Bot
@@ -27,6 +27,30 @@ var recognizer = new builder.LuisRecognizer(model);
 var dialog = new builder.IntentDialog({ recognizers: [recognizer] });
 bot.dialog('/', dialog);
 
+// Every 5 seconds, check for new registered users and start a new dialog
+function sendDM(address, message) {
+
+    // new conversation address, copy without conversationId
+    var newConversationAddress = Object.assign({}, address);
+    delete newConversationAddress.conversation;
+
+    // start survey dialog
+    bot.beginDialog(newConversationAddress, 'directmessage', message, (err) => {
+        if (err) {
+            // error ocurred while starting new conversation. Channel not supported?
+            bot.send(new builder.Message()
+                .text('This channel does not support this operation: ' + err.message)
+                .address(address));
+        }
+    });
+}
+
+bot.dialog('directmessage', [
+    function(session, args) {
+        session.endDialog(args.text);
+    }
+]);
+
 // Add intent handlers
 dialog.matches('LFM', [
     function(session, args, next) {
@@ -34,11 +58,6 @@ dialog.matches('LFM', [
         next({ response: language });
     },
     function(session, results) {
-        var reply = new builder.Message()
-                    .address(session.message.address)
-                    .text("Hi");
-                bot.send(reply);
-
         if (!session.conversationData['LFG']) {
             session.conversationData['LFG'] = {};
         }
@@ -63,9 +82,8 @@ dialog.matches('LFM', [
         else {
             replyText += "We will help you find members.";
         }
-        var address = session.message.address.conversation;
 
-        session.send(replyText);
+        sendDM(session.message.address, {text: replyText});
 
         // Save user's request to dictionary
         if(results.response && results.response.entity != "") {
@@ -80,53 +98,32 @@ dialog.matches('LFM', [
 
         for (var key in session.conversationData['LFG']) {
             if(!results.response || results.response.entity == "") {
-                // session.send("- " + key);
                 resultsText += "- " + key + "\n";
                 count++;
             }
             else if(session.conversationData['LFG'][key] == results.response.entity) {
-                // session.send("- " + key);
                 resultsText += "- " + key + "\n";
                 count++;
             }
         }       
 
         if (count == 1) {
-            // session.endDialog("1 match found.");
             resultsText += "1 match found.";
         }
         else {
-            // session.endDialog(count + " matches found.");
             resultsText += (count + " matches found.");
         }
 
-        session.endDialog(resultsText);
-        // var resultsMessage = session.message.CreateReplyMessage(resultsText, "en");
-        // resultsMessage.ConversationId = null;
-        // resultsMessage.ChannelConversationId = null;
-        // resultsMessage.ChannelConversationId = "@" + session.message.address.user.name;
-        // bot.send(resultsMessage);
-        
-        bot.beginDialog({
-            to: {address:"User1", channelId:"emulator", id:"2c1c7fa3", isBot:false},
-            from: {address:"Bot1", channelId:"emulator", id:"56800324", isBot:true},
-            text: "Something"
-        }, '/');
-
-
-
+        sendDM(session.message.address, {text: resultsText});
     }
 ]);
 
 dialog.matches('LFG', [
     function(session, args, next) {
-        var match;
         var language = builder.EntityRecognizer.findEntity(args.entities, 'Language');
         next({ response: language });
     },
     function(session, results) {
-        var reply = "";
-
         if (!session.conversationData['LFG']) {
             session.conversationData['LFG'] = {};
         }
@@ -134,24 +131,25 @@ dialog.matches('LFG', [
             session.conversationData['LFM'] = {};
         }
 
+        var replyText = "";
 
         // Greet the user
         if(session.conversationData['LFG'][session.message.address.user.name] == undefined) {
-            reply += ("Nice to meet you " + session.message.address.user.name + "! ");
+            replyText += ("Nice to meet you " + session.message.address.user.name + "! ");
         }
         else {
-            reply += ("Welcome back " + session.message.address.user.name + "! ");
+            replyText += ("Welcome back " + session.message.address.user.name + "! ");
         }
 
         // Check user's request
         if(results.response && results.response.entity != "") {
-            reply += ("We will help you find teams that want members that know " + results.response.entity + ".");
+            replyText += ("We will help you find teams that want members that know " + results.response.entity + ".");
         }
         else {
-            reply += "We will help you find teams that want more members.";
+            replyText += "We will help you find teams that want more members.";
         }
 
-        session.send(reply);
+        sendDM(session.message.address, {text: replyText});
 
         // Save user's request to dictionary
         if(results.response && results.response.entity != "") {
@@ -162,23 +160,27 @@ dialog.matches('LFG', [
         }
 
         var count = 0;
+        var resultsText = "";
+
         for (var key in session.conversationData['LFM']) {
             if(!results.response || results.response.entity == "") {
-                session.send("- " + key);
+                resultsText += "- " + key + "\n";
                 count++;
             }
             else if(session.conversationData['LFM'][key] == results.response.entity) {
-                session.send("- " + key);
+                resultsText += "- " + key + "\n";
                 count++;
             }
-        }
+        }       
 
         if (count == 1) {
-            session.endDialog("1 match found.");
+            resultsText += "1 match found.";
         }
         else {
-            session.endDialog(count + " matches found.");
+            resultsText += (count + " matches found.");
         }
+
+        sendDM(session.message.address, {text: resultsText});
     }
 ]);
 
