@@ -30,11 +30,11 @@ bot.dialog('/', dialog);
 // Every 5 seconds, check for new registered users and start a new dialog
 function sendDM(address, message) {
 
-    // new conversation address, copy without conversationId
+    // new conversation address
     var newConversationAddress = Object.assign({}, address);
     delete newConversationAddress.conversation;
 
-    // start survey dialog
+    // start directmessage dialog
     bot.beginDialog(newConversationAddress, 'directmessage', message, (err) => {
         if (err) {
             // error ocurred while starting new conversation. Channel not supported?
@@ -45,19 +45,21 @@ function sendDM(address, message) {
     });
 }
 
+// Sends text given as argument to session
 bot.dialog('directmessage', [
     function(session, args) {
         session.endDialog(args.text);
     }
 ]);
 
-// Add intent handlers
+// If LUIS detected LFM request
 dialog.matches('LFM', [
     function(session, args, next) {
         var language = builder.EntityRecognizer.findEntity(args.entities, 'Language');
         next({ response: language });
     },
     function(session, results) {
+        // Initiate dictionaries if they have not already been
         if (!session.conversationData['LFG']) {
             session.conversationData['LFG'] = {};
         }
@@ -93,6 +95,7 @@ dialog.matches('LFM', [
             session.conversationData['LFM'][session.message.address.user.name] = "";
         }
 
+        // Print out all users matching the request
         var count = 0;
         var resultsText = "";
 
@@ -118,12 +121,14 @@ dialog.matches('LFM', [
     }
 ]);
 
+// If LUIS detected LFG request
 dialog.matches('LFG', [
     function(session, args, next) {
         var language = builder.EntityRecognizer.findEntity(args.entities, 'Language');
         next({ response: language });
     },
     function(session, results) {
+        // Initiate dictionaries if they have not already been
         if (!session.conversationData['LFG']) {
             session.conversationData['LFG'] = {};
         }
@@ -159,6 +164,7 @@ dialog.matches('LFG', [
             session.conversationData['LFG'][session.message.address.user.name] = "";
         }
 
+        // Print out all users matching the request
         var count = 0;
         var resultsText = "";
 
@@ -184,4 +190,5 @@ dialog.matches('LFG', [
     }
 ]);
 
+// If LUIS detected unknown request
 dialog.onDefault(builder.DialogAction.send("I'm sorry I didn't understand."));
