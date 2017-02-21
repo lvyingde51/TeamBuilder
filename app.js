@@ -27,31 +27,6 @@ var recognizer = new builder.LuisRecognizer(model);
 var dialog = new builder.IntentDialog({ recognizers: [recognizer] });
 bot.dialog('/', dialog);
 
-// Every 5 seconds, check for new registered users and start a new dialog
-function sendDM(address, message) {
-
-    // new conversation address
-    var newConversationAddress = Object.assign({}, address);
-    delete newConversationAddress.conversation;
-
-    // start directmessage dialog
-    bot.beginDialog(newConversationAddress, 'directmessage', message, (err) => {
-        if (err) {
-            // error ocurred while starting new conversation. Channel not supported?
-            bot.send(new builder.Message()
-                .text('This channel does not support this operation: ' + err.message)
-                .address(address));
-        }
-    });
-}
-
-// Sends text given as argument to session
-bot.dialog('directmessage', [
-    function(session, args) {
-        session.endDialog(args.text);
-    }
-]);
-
 // If LUIS detected LFM request
 dialog.matches('LFM', [
     function(session, args, next) {
@@ -85,8 +60,6 @@ dialog.matches('LFM', [
             replyText += "We will help you find members.";
         }
 
-        sendDM(session.message.address, {text: replyText});
-
         // Save user's request to dictionary
         if(results.response && results.response.entity != "") {
             session.conversationData['LFM'][session.message.address.user.name] = results.response.entity;
@@ -117,7 +90,12 @@ dialog.matches('LFM', [
             resultsText += (count + " matches found.");
         }
 
-        sendDM(session.message.address, {text: resultsText});
+        var directaddress = session.message.address;
+        delete directaddress.conversation;
+        var replymessage = new builder.Message().address(directaddress).text(replyText);
+        bot.send(replymessage);
+        var resultsmessage = new builder.Message().address(directaddress).text(resultsText);
+        bot.send(resultsmessage);
     }
 ]);
 
@@ -154,8 +132,6 @@ dialog.matches('LFG', [
             replyText += "We will help you find teams that want more members.";
         }
 
-        sendDM(session.message.address, {text: replyText});
-
         // Save user's request to dictionary
         if(results.response && results.response.entity != "") {
             session.conversationData['LFG'][session.message.address.user.name] = results.response.entity;
@@ -186,7 +162,13 @@ dialog.matches('LFG', [
             resultsText += (count + " matches found.");
         }
 
-        sendDM(session.message.address, {text: resultsText});
+        var directaddress = session.message.address;
+        delete directaddress.conversation;
+        var replymessage = new builder.Message().address(directaddress).text(replyText);
+        bot.send(replymessage);
+        var resultsmessage = new builder.Message().address(directaddress).text(resultsText);
+        bot.send(resultsmessage);
+
     }
 ]);
 
